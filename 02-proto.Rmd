@@ -1,0 +1,27 @@
+---
+title: "Proto Challenge for ECMC"
+output:
+  html_notebook: default
+  pdf_document: default
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook to address the coding challenge presented by [ECMC](https://www.ecmc.org) to Peter Edstrom on January 5th, 2018.
+
+The full challenge text can be found in [README.md](byte-reader/README.md)
+
+## Challenge Goals
+
+Parse [data.dat](byte-reader/data.dat) and answer the five questions:
+# What is the total amount in dollars of debits? 
+# What is the total amount in dollars of credits? 
+# How many autopays were started?
+# How many autopays were ended?
+# What is balance of user ID 2456938384156277127?
+
+## Setup
+
+```{r}
+
+```
+
+
