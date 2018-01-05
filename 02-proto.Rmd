@@ -20,8 +20,19 @@ Parse [data.dat](byte-reader/data.dat) and answer the five questions:
 
 ## Setup
 
-```{r}
+Attempted to use the `character()` encoding, but that is dependent on a zero-terminator character string. Had to return to reading `raw()` encoding and convert to String afterwords. 
 
+```{r}
+to.read = file("byte-reader/data.dat", "rb")
+#magic_string
+rawToChar(readBin(to.read, raw()))
+rawToChar(readBin(to.read, raw()))
+rawToChar(readBin(to.read, raw()))
+rawToChar(readBin(to.read, raw()))
+
+#to.read = file("byte-reader/data.dat", "rb")
+#readBin(to.read, character(), n=1, size=4)
 ```
+
 
 
