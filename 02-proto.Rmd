@@ -165,7 +165,7 @@ For the user_id, `4.136354e+18` seems like an unusually long user ID, however wh
 
 So I'd say these results seem reasonable! Let's carry on. 
 
-As a debit, this record comes with an additional amount field, an 8 byte float.
+As a debit, this record comes with an additional field, an 8 byte float for the amount.
 
 ```{r}
 to.read = file("byte-reader/data.dat", "rb")
@@ -178,10 +178,54 @@ amount
 close(to.read)
 ```
 
-This *feels* like a reasonable amount, however I should note that at this point in the exercise that there is very little in the data that will provide feedback on the correctness of the results.
+`604.2743` *feels* like a reasonable amount, however I should note that at this point in the exercise that there is very little in the data that will provide feedback on the correctness of the results.
 
 I see three assumtions we might be able to make:
 
 * Timestamps will be in the future of the UNIX epoc. 
 * A transaction log would not include records from the future. 
 * Record types are always and *only* the 4 types listed. 
+
+Let's put a function together that will read a single record:
+
+```{r}
+processRecord <- function() {
+  type_enum <- readBin(to.read, integer(), size=1)
+  if (length(type_enum) == 0) { return(FALSE) }
+  timestamp <- bytesToInteger(to.read,4)
+  user_id <- bytesToInteger(to.read,8)
+  if (type_enum == 0 | type_enum == 1) {
+    amount <- readBin(to.read, double(), n=1, size=8, endian="big")
+  } else {
+    amount <- NULL
+  }
+  print(paste("Type=", type_enum, " Timestamp=", timestamp, " User ID=", user_id, " Amount=", amount, sep=""))
+  return(TRUE)
+}
+
+to.read = file("byte-reader/data.dat", "rb")
+processHeader()
+p <- processRecord()
+p <- processRecord()
+p <- processRecord()
+p <- processRecord()
+p <- processRecord()
+close(to.read)
+
+```
+
+Reading the first 5 records seems to work! 
+
+*As an aside: I feel like I'm getting sloppy with the global variables - these functions are not quite as atomic as I would prefer Making a note of this to-do for consideration at a later date.*
+
+OK, next up: Loop through all of the records and stop successfully at the end. 
+
+```{r}
+to.read = file("byte-reader/data.dat", "rb")
+processHeader()
+while (processRecord()) {
+  #do a thing
+}
+close(to.read)
+```
+
