@@ -121,15 +121,24 @@ bytesToInteger <- function(file_name, number_of_bytes) {
 
 Notice the similarities already emerging between `retrieveNbytes` and `bytesToInteger`. Perhaps a strategy that would create a function similar to Ruby's `unpack` function would make sense. Curiously, I spent some time researching alternatives to `unpack` and found very few. Even in Python, it apears that there is not a function that works as well as Ruby's implementation.
 
-Regardless, we have removed the 255 record limit and our header processing now looks like this:
+Regardless, we have removed the 255 record limit.
+
+Let's extract the header processing into a function:
+
+```{r}
+processHeader <- function() {
+  magic_string <- rawToChar(retrieveNbytes(to.read,4))
+  version <- readBin(to.read, integer(), size=1)
+  records <- bytesToInteger(to.read,4)
+}
+```
+
 
 ```{r}
 to.read = file("byte-reader/data.dat", "rb")
-magic_string <- rawToChar(retrieveNbytes(to.read,4))
+processHeader()
 magic_string
-version <- readBin(to.read, integer(), size=1)
 version
-records <- bytesToInteger(to.read,4)
 records
 close(to.read)
 ```
