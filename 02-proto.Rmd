@@ -143,6 +143,45 @@ records
 close(to.read)
 ```
 
+## Record Parsing
 
+```{r}
+to.read = file("byte-reader/data.dat", "rb")
+processHeader()
+type_enum <- readBin(to.read, integer(), size=1)
+type_enum
+timestamp <- bytesToInteger(to.read,4)
+timestamp
+user_id <- bytesToInteger(to.read,8)
+user_id
+close(to.read)
+```
 
+For the type_enum, `0` is a Debit. 
 
+For the timestamp, I validated it with https://www.unixtimestamp.com, which converts the UNIX timestamp into a more readable represenation, `02/22/2014 @ 10:42pm (UTC)`. This date-time is nither wildly in the past nor in the far future.
+
+For the user_id, `4.136354e+18` seems like an unusually long user ID, however when compared to the supplied user ID in the challenge `2456938384156277127` we find that they are both 19 digits long. 
+
+So I'd say these results seem reasonable! Let's carry on. 
+
+As a debit, this record comes with an additional amount field, an 8 byte float.
+
+```{r}
+to.read = file("byte-reader/data.dat", "rb")
+processHeader()
+type_enum <- readBin(to.read, integer(), size=1)
+timestamp <- bytesToInteger(to.read,4)
+user_id <- bytesToInteger(to.read,8)
+amount <- readBin(to.read, double(), n=1, size=8, endian="big")
+amount
+close(to.read)
+```
+
+This *feels* like a reasonable amount, however I should note that at this point in the exercise that there is very little in the data that will provide feedback on the correctness of the results.
+
+I see three assumtions we might be able to make:
+
+* Timestamps will be in the future of the UNIX epoc. 
+* A transaction log would not include records from the future. 
+* Record types are always and *only* the 4 types listed. 
