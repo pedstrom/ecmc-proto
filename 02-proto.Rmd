@@ -5,34 +5,88 @@ output:
   pdf_document: default
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook to address the coding challenge presented by [ECMC](https://www.ecmc.org) to Peter Edstrom on January 5th, 2018.
-
-The full challenge text can be found in [README.md](byte-reader/README.md)
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook to address the coding challenge presented by [ECMC](https://www.ecmc.org) to Peter Edstrom on January 5th, 2018. 
 
 ## Challenge Goals
 
-Parse [data.dat](byte-reader/data.dat) and answer the five questions:
-# What is the total amount in dollars of debits? 
-# What is the total amount in dollars of credits? 
-# How many autopays were started?
-# How many autopays were ended?
-# What is balance of user ID 2456938384156277127?
+The full challenge text can be found in [README.md](byte-reader/README.md), however at a high-level, we aim to parse [data.dat](byte-reader/data.dat) and answer the five questions:
 
-## Setup
+* What is the total amount in dollars of debits? 
+* What is the total amount in dollars of credits? 
+* How many autopays were started?
+* How many autopays were ended?
+* What is balance of user ID 2456938384156277127?
 
-Attempted to use the `character()` encoding, but that is dependent on a zero-terminator character string. Had to return to reading `raw()` encoding and convert to String afterwords. 
+## Log Specification
+
+MPS7 transaction log specification:
+
+Header:
+| 4 byte magic string "MPS7" | 1 byte version | 4 byte (uint32) # of records |
+
+Record:
+| 1 byte record type enum | 4 byte (uint32) Unix timestamp | 8 byte (uint64) user ID |
+
+Record type enum:
+
+* 0x00: Debit
+* 0x01: Credit
+* 0x02: StartAutopay
+* 0x03: EndAutopay
+
+## Setup and Helper Functions
+
+I started experimenting with the `readBin()` function. However, I found found that using some of the built-in modes such as the obvious `character` would return too much of the file. For example:
 
 ```{r}
 to.read = file("byte-reader/data.dat", "rb")
-#magic_string
-rawToChar(readBin(to.read, raw()))
-rawToChar(readBin(to.read, raw()))
-rawToChar(readBin(to.read, raw()))
-rawToChar(readBin(to.read, raw()))
-
-#to.read = file("byte-reader/data.dat", "rb")
-#readBin(to.read, character(), n=1, size=4)
+readBin(to.read, character(), n=1, size=4)
+close(to.read)
 ```
+
+Notice the trailing `\001`. My understanding is that `character` is dependent on a zero-terminator character string, which we clearly can not count on. The `size=4` appears to be ignored in `character` modes.
+
+Using the `raw` mode, and converting to a character string afterwords seems like a decent fall-back. However, I ran into a number of issues:
+
+* `size` is always of size 1 in `raw` mode
+* `n`, used for retrieving multiple records is also unavailable in `raw` mode
+* and `raw` seems to have no option other than to retrieve 1 byte at a time.
+
+```{r}
+to.read = file("byte-reader/data.dat", "rb")
+raw_data <- readBin(to.read, raw())
+raw_data
+rawToChar(raw_data)
+close(to.read)
+```
+
+As you can see in these results, `4d` converts to our very first character, `M`. 
+
+Having not found a sufficient way to read a specific number of bytes in one go, I decided to write a short function. If someone can find a better way to do this upon code review, I absolutly welcome a refactor.
+
+```{r}
+retrieveNbytes <- function(file_name, number_of_bytes) {
+  count <- number_of_bytes
+  raw_bytes <- c()
+  while (count > 0) {
+    count <- count - 1
+    raw_bytes <- c(raw_bytes, readBin(file_name, raw()))
+  }
+  return(raw_bytes)
+}
+```
+
+## Header Parsing
+
+Putting the new `retrieveNbytes` function to use in extracting the first 4 characters:
+
+```{r}
+to.read = file("byte-reader/data.dat", "rb")
+rawToChar(retrieveNbytes(to.read,4))
+close(to.read)
+```
+
+We have found the expected magic string!
 
 
 
