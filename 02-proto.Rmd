@@ -103,9 +103,36 @@ close(to.read)
 
 Note that this is not quite the right for the record count. I'm reading 4 bytes, but each byte is stored in an array and for simplicity I'm just jumping to the 4th item and using it. There are 71 records reported, but for any record count greater than 255, this will fail.
 
-I suspect I'll refactor this before the end. 
+Let's fix this with a quick function:
 
+```{r}
+bytesToInteger <- function(file_name, number_of_bytes) {
+  raw_bytes <- retrieveNbytes(file_name,number_of_bytes)
+  count <- number_of_bytes
+  total <- 0
+  while (count > 0) {
+    t <- as.integer(raw_bytes)[count] * 2^((number_of_bytes-count)*8)
+    total <- total + t
+    count <- count - 1
+  }
+  return(total)
+}
+```
 
+Notice the similarities already emerging between `retrieveNbytes` and `bytesToInteger`. Perhaps a strategy that would create a function similar to Ruby's `unpack` function would make sense. Curiously, I spent some time researching alternatives to `unpack` and found very few. Even in Python, it apears that there is not a function that works as well as Ruby's implementation.
+
+Regardless, we have removed the 255 record limit and our header processing now looks like this:
+
+```{r}
+to.read = file("byte-reader/data.dat", "rb")
+magic_string <- rawToChar(retrieveNbytes(to.read,4))
+magic_string
+version <- readBin(to.read, integer(), size=1)
+version
+records <- bytesToInteger(to.read,4)
+records
+close(to.read)
+```
 
 
 
