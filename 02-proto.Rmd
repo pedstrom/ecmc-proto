@@ -263,3 +263,72 @@ colnames(df) <- c("type_enum", "timestamp", "user_id", "amount")
 close(to.read)
 df
 ```
+
+## Answering the Questions
+
+### What is the total amount in dollars of debits? 
+
+```{r}
+debit_records <- df[df$type_enum==0,]
+sum_of_debits <- sum(debit_records$amount)
+sum_of_debits
+```
+
+The sum of the debit amounts is **$18,203.70**
+
+
+### What is the total amount in dollars of credits? 
+
+```{r}
+credit_records <- df[df$type_enum==1,]
+sum_of_credits <- sum(credit_records$amount)
+sum_of_credits
+```
+
+The sum of the credit amounts is **$10,073.36**
+
+
+### How many autopays were started?
+
+```{r}
+start_autopay_records <- df[df$type_enum==2,]
+count_start_autopay <- nrow(start_autopay_records)
+count_start_autopay
+```
+
+There are **10** StartAutopay records. 
+
+
+### How many autopays were ended?
+
+```{r}
+end_autopay_records <- df[df$type_enum==3,]
+count_end_autopay <- nrow(end_autopay_records)
+count_end_autopay
+```
+
+There are **8** StartAutopay records. 
+
+
+### What is balance of user ID 2456938384156277127?
+
+```{r}
+user_records <- df[df$user_id==2456938384156277127,]
+user_records
+```
+
+As you can see, there are two records for the user in question. It is pretty easy to tell that the two records will cancel each other out (one is a debit, one is a credit, and both have the same amount). However if this was a larger set of data, I'd calculate it something like the following: 
+
+```{r}
+sum_of_user_credits <- sum(user_records[user_records$type_enum==1,]$amount)
+sum_of_user_debits <- sum(user_records[user_records$type_enum==0,]$amount)
+user_balance <- sum_of_user_credits - sum_of_user_debits
+user_balance
+```
+
+And there it is. The balance for user ID 2456938384156277127 is **$0.00**.
+
+## Final Code
+
+```{r}
+```
