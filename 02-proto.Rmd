@@ -419,12 +419,23 @@ user_balance <- sum_of_user_credits - sum_of_user_debits
 
 ## Areas for further consideration and refinement
 
-* Decide if there is a need to address the discrepancy in the record count in the header 71 and the actual record count found. I chose to read all 72 records but perhaps I should have ignored the last one.
-* Potentially consolidate the similarities in the `retrieveNbytes` and `bytesToInteger` functions, similar to Ruby's `unpack` function.
-* Convert the UNIX timestamp data into a more usable R time object.
-* Create constants for the 4 record types so that the code is easier to read.
+There are many areas that could be addressed next and prioritizing any one of these would be an exercise in quantifying trade-offs. I advise estimating the work with the engineering team and collaborating with the business/product team to determine which items represent the greatest value to the business.
+
+#### Logic considerations
+
+* Is there a need to address the discrepancy in the record count in the header 71 and the actual record count found? I choose to read all 72 records but perhaps I should have ignored the last one. This may be gap in documentation of the log specification.
 * Consider where fractional pennies make sense, if any. Round at the appropriate time.
-* Build tests that demonstrate and validate the functions are working properly.
-* Build in error handling in case the data file or records are malformed.
+
+#### Code quality
+
+* Potentially consolidate the similarities in the `retrieveNbytes` and `bytesToInteger` functions, similar to Ruby's `unpack` function.
+* Create constants for the 4 record types so that the code is easier to read.
 * Reduce the use of global variables. Make the functions more atomic.
+* Build in error handling for the case where the data file or records are malformed.
+* Build tests that demonstrate and validate the functions are working properly.
 * There might be value in utilizing Docker or Vagrant to wrap this code in a consistent environment.
+
+#### Future-proofing
+
+* Process the UNIX timestamp data into a more usable R time object.
+* Depending on the size of the production data set, refactor this code for performance. For example: this code will run out of memory for sufficiently large data sets.
