@@ -197,7 +197,7 @@ processRecord <- function() {
   if (type_enum == 0 | type_enum == 1) {
     amount <- readBin(to.read, double(), n=1, size=8, endian="big")
   } else {
-    amount <- NULL
+    amount <- NA
   }
   print(paste("Type=", type_enum, " Timestamp=", timestamp, " User ID=", user_id, " Amount=", amount, sep=""))
   return(TRUE)
@@ -216,7 +216,7 @@ close(to.read)
 
 Reading the first 5 records seems to work! 
 
-*As an aside: I feel like I'm getting sloppy with the global variables - these functions are not quite as atomic as I would prefer Making a note of this to-do for consideration at a later date.*
+*As an aside: I feel like I'm getting sloppy with the global variables - these functions are not quite as atomic as I would prefer. Making a note of this to-do for future consideration.*
 
 OK, next up: Loop through all of the records and stop successfully at the end. 
 
@@ -229,3 +229,37 @@ while (processRecord()) {
 close(to.read)
 ```
 
+## Refactor the Data into a Data Frame
+
+Let's refactor our functions and store the values into a data frame.
+
+In the following new `processRecord` function, we return either a vector of the record values, or an empty vector:
+
+```{r}
+processRecord <- function() {
+  type_enum <- readBin(to.read, integer(), size=1)
+  if (length(type_enum) == 0) { return(c()) }
+  timestamp <- bytesToInteger(to.read,4)
+  user_id <- bytesToInteger(to.read,8)
+  if (type_enum == 0 | type_enum == 1) {
+    amount <- readBin(to.read, double(), n=1, size=8, endian="big")
+  } else {
+    amount <- NA
+  }
+  return(c(type_enum, timestamp, user_id, amount))
+}
+```
+
+In our main function, we capture the vector returned from `processRecord` and add the resuts to a data.frame, `df`. 
+
+```{r}
+to.read = file("byte-reader/data.dat", "rb")
+processHeader()
+df <- data.frame(matrix(ncol = 4, nrow = 0))
+while (length(r <- processRecord()) > 1) {
+  df <- rbind(df, r)
+}
+colnames(df) <- c("type_enum", "timestamp", "user_id", "amount")
+close(to.read)
+df
+```
