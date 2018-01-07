@@ -331,4 +331,92 @@ And there it is. The balance for user ID 2456938384156277127 is **$0.00**.
 ## Final Code
 
 ```{r}
+
+# Functions
+
+processHeader <- function() {
+  magic_string <- rawToChar(retrieveNbytes(to.read,4))
+  version <- readBin(to.read, integer(), size=1)
+  records <- bytesToInteger(to.read,4)
+}
+
+retrieveNbytes <- function(file_name, number_of_bytes) {
+  count <- number_of_bytes
+  raw_bytes <- c()
+  while (count > 0) {
+    count <- count - 1
+    raw_bytes <- c(raw_bytes, readBin(file_name, raw()))
+  }
+  return(raw_bytes)
+}
+
+bytesToInteger <- function(file_name, number_of_bytes) {
+  raw_bytes <- retrieveNbytes(file_name,number_of_bytes)
+  count <- number_of_bytes
+  total <- 0
+  while (count > 0) {
+    t <- as.integer(raw_bytes)[count] * 2^((number_of_bytes-count)*8)
+    total <- total + t
+    count <- count - 1
+  }
+  return(total)
+}
+
+processRecord <- function() {
+  type_enum <- readBin(to.read, integer(), size=1)
+  if (length(type_enum) == 0) { return(c()) }
+  timestamp <- bytesToInteger(to.read,4)
+  user_id <- bytesToInteger(to.read,8)
+  if (type_enum == 0 | type_enum == 1) {
+    amount <- readBin(to.read, double(), n=1, size=8, endian="big")
+  } else {
+    amount <- NA
+  }
+  return(c(type_enum, timestamp, user_id, amount))
+}
+
+# Read the file and create a data frame with the information
+
+to.read = file("byte-reader/data.dat", "rb")
+processHeader()
+df <- data.frame(matrix(ncol = 4, nrow = 0))
+while (length(r <- processRecord()) > 1) {
+  df <- rbind(df, r)
+}
+colnames(df) <- c("type_enum", "timestamp", "user_id", "amount")
+close(to.read)
+
+# Answer the Questions
+
+debit_records <- df[df$type_enum==0,]
+sum_of_debits <- sum(debit_records$amount)
+
+credit_records <- df[df$type_enum==1,]
+sum_of_credits <- sum(credit_records$amount)
+
+start_autopay_records <- df[df$type_enum==2,]
+count_start_autopay <- nrow(start_autopay_records)
+
+end_autopay_records <- df[df$type_enum==3,]
+count_end_autopay <- nrow(end_autopay_records)
+
+user_records <- df[df$user_id==2456938384156277127,]
+sum_of_user_credits <- sum(user_records[user_records$type_enum==1,]$amount)
+sum_of_user_debits <- sum(user_records[user_records$type_enum==0,]$amount)
+user_balance <- sum_of_user_credits - sum_of_user_debits
+
 ```
+
+## Areas for further consideration and refinement
+
+* Decide if there is a need to address the discrepency in the record count in the header 71, and the actual record count found. I chose to read all 72 records, but perhaps I should have ignored the last one. 
+* Potentially consolidate the similarities in the `retrieveNbytes` and `bytesToInteger` functions, similar to Ruby's `unpack` function.
+* Convert the UNIX timestamp data into a more usable R time object. 
+* Create constants for the 4 record types so that the code is easier to read.
+* Consider where fractional pennies make sense, if any. Round appropriatly. 
+* Build tests that demonstrate and validate the functions are working properly.
+* Build in error handling incase the data file or records are malformed.
+* Reduce the use of global variables. Make the functions more atomic. 
+* There might be value in utilizing Docker or Vagrant to wrap this code in a consistent environment. 
+
+
