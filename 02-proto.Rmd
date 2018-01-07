@@ -2,17 +2,19 @@
 title: "Proto Challenge for ECMC"
 output:
   html_notebook: default
+  html_document:
+    df_print: paged
   pdf_document: default
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook to address the coding challenge presented by [ECMC](https://www.ecmc.org) to Peter Edstrom on January 5th, 2018. 
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook to address the coding challenge presented by [ECMC](https://www.ecmc.org) to Peter Edstrom on January 5th, 2018.
 
 ## Challenge Goals
 
-The full challenge text can be found in [README.md](byte-reader/README.md), however at a high-level, we aim to parse [data.dat](byte-reader/data.dat) and answer the five questions:
+The full challenge text can be found in [README.md](byte-reader/README.md). We aim to parse [data.dat](byte-reader/data.dat) and answer the five questions:
 
-* What is the total amount in dollars of debits? 
-* What is the total amount in dollars of credits? 
+* What is the total amount in dollars of debits?
+* What is the total amount in dollars of credits?
 * How many autopays were started?
 * How many autopays were ended?
 * What is balance of user ID 2456938384156277127?
@@ -60,9 +62,9 @@ rawToChar(raw_data)
 close(to.read)
 ```
 
-As you can see in these results, `4d` converts to our very first character, `M`. 
+As you can see in these results, `4d` converts to our very first character, `M`.
 
-Having not found a sufficient way to read a specific number of bytes in one go, I decided to write a short function. If someone can find a better way to do this upon code review, I absolutly welcome a refactor.
+Having not found a sufficient way to read a specific number of bytes in one go, I decided to write a short function. If someone can find a better way to do this upon code review, I absolutely welcome a refactor.
 
 ```{r}
 retrieveNbytes <- function(file_name, number_of_bytes) {
@@ -119,7 +121,7 @@ bytesToInteger <- function(file_name, number_of_bytes) {
 }
 ```
 
-Notice the similarities already emerging between `retrieveNbytes` and `bytesToInteger`. Perhaps a strategy that would create a function similar to Ruby's `unpack` function would make sense. Curiously, I spent some time researching alternatives to `unpack` and found very few. Even in Python, it apears that there is not a function that works as well as Ruby's implementation.
+Notice the similarities already emerging between `retrieveNbytes` and `bytesToInteger`. Perhaps a strategy that would create a function similar to Ruby's `unpack` function would make sense. Curiously, I spent some time researching alternatives to `unpack` and found very few. Even in Python, it appears that there is not a function that works as well as Ruby's implementation.
 
 Regardless, we have removed the 255 record limit.
 
@@ -157,13 +159,13 @@ user_id
 close(to.read)
 ```
 
-For the type_enum, `0` is a Debit. 
+For the type_enum, `0` is a Debit.
 
-For the timestamp, I validated it with https://www.unixtimestamp.com, which converts the UNIX timestamp into a more readable represenation, `02/22/2014 @ 10:42pm (UTC)`. This date-time is nither wildly in the past nor in the far future.
+For the timestamp, I validated it with https://www.unixtimestamp.com, which converts the UNIX timestamp into a more readable representation, `02/22/2014 @ 10:42pm (UTC)`. This date-time is neither wildly in the past nor in the far future.
 
-For the user_id, `4.136354e+18` seems like an unusually long user ID, however when compared to the supplied user ID in the challenge `2456938384156277127` we find that they are both 19 digits long. 
+For the user_id, `4.136354e+18` seems like an unusually long user ID, however when compared to the supplied user ID in the challenge `2456938384156277127` we find that they are both 19 digits long.
 
-So I'd say these results seem reasonable! Let's carry on. 
+So I'd say these results seem reasonable! Let's carry on.
 
 As a debit, this record comes with an additional field, an 8 byte float for the amount.
 
@@ -178,13 +180,13 @@ amount
 close(to.read)
 ```
 
-`604.2743` *feels* like a reasonable amount, however I should note that at this point in the exercise that there is very little in the data that will provide feedback on the correctness of the results.
+`604.2743` *feels* like a reasonable amount, however I should note that at this point in the exercise that there is very little in the data that will provide feedback on the validity of the results. The data is numerical and there is little guidance we can assume on valid minimums or maximums.
 
-I see three assumtions we might be able to make:
+I see three assumptions we might be able to make:
 
-* Timestamps will be in the future of the UNIX epoc. 
-* A transaction log would not include records from the future. 
-* Record types are always and *only* the 4 types listed. 
+* Timestamps will be in the future of the UNIX epoch.
+* A transaction log would not include records from the future.
+* Record types are always and *only* the 4 types listed.
 
 Let's put a function together that will read a single record:
 
@@ -214,11 +216,11 @@ close(to.read)
 
 ```
 
-Reading the first 5 records seems to work! 
+Reading the first 5 records seems to work!
 
 *As an aside: I feel like I'm getting sloppy with the global variables - these functions are not quite as atomic as I would prefer. Making a note of this to-do for future consideration.*
 
-OK, next up: Loop through all of the records and stop successfully at the end. 
+Next up: Loop through all of the records and stop successfully at the end.
 
 ```{r}
 to.read = file("byte-reader/data.dat", "rb")
@@ -233,7 +235,7 @@ close(to.read)
 
 Let's refactor our functions and store the values into a data frame.
 
-In the following new `processRecord` function, we return either a vector of the record values, or an empty vector:
+In the following revised `processRecord` function we now a vector of the record values:
 
 ```{r}
 processRecord <- function() {
@@ -250,7 +252,7 @@ processRecord <- function() {
 }
 ```
 
-In our main function, we capture the vector returned from `processRecord` and add the resuts to a data.frame, `df`. 
+In our main function we capture the vector returned from `processRecord` and add the results to a data.frame, `df`.
 
 ```{r}
 to.read = file("byte-reader/data.dat", "rb")
@@ -264,9 +266,17 @@ close(to.read)
 df
 ```
 
+A summary of the data frame below reveals a fair amount of consistency. _Amounts_ range between $98.83 and $998.12. _Timestamps_ are closely clustered, and most _user_ids_ are 19 digits long. Though there is at least one user_id that is only 17 digits long.
+
+```{r}
+summary(df)
+```
+
+
+
 ## Answering the Questions
 
-### What is the total amount in dollars of debits? 
+### What is the total amount in dollars of debits?
 
 ```{r}
 debit_records <- df[df$type_enum==0,]
@@ -277,7 +287,7 @@ sum_of_debits
 The sum of the debit amounts is **$18,203.70**
 
 
-### What is the total amount in dollars of credits? 
+### What is the total amount in dollars of credits?
 
 ```{r}
 credit_records <- df[df$type_enum==1,]
@@ -296,7 +306,7 @@ count_start_autopay <- nrow(start_autopay_records)
 count_start_autopay
 ```
 
-There are **10** StartAutopay records. 
+There are **10** StartAutopay records.
 
 
 ### How many autopays were ended?
@@ -307,7 +317,7 @@ count_end_autopay <- nrow(end_autopay_records)
 count_end_autopay
 ```
 
-There are **8** StartAutopay records. 
+There are **8** StartAutopay records.
 
 
 ### What is balance of user ID 2456938384156277127?
@@ -317,7 +327,7 @@ user_records <- df[df$user_id==2456938384156277127,]
 user_records
 ```
 
-As you can see, there are two records for the user in question. It is pretty easy to tell that the two records will cancel each other out (one is a debit, one is a credit, and both have the same amount). However if this was a larger set of data, I'd calculate it something like the following: 
+As you can see, there are two records for the user in question. It is pretty easy to tell that the two records will cancel each other out (one is a debit, one is a credit, and both have the same amount). However if this was a larger set of data I'd calculate it something like the following: 
 
 ```{r}
 sum_of_user_credits <- sum(user_records[user_records$type_enum==1,]$amount)
@@ -409,14 +419,12 @@ user_balance <- sum_of_user_credits - sum_of_user_debits
 
 ## Areas for further consideration and refinement
 
-* Decide if there is a need to address the discrepency in the record count in the header 71, and the actual record count found. I chose to read all 72 records, but perhaps I should have ignored the last one. 
+* Decide if there is a need to address the discrepancy in the record count in the header 71 and the actual record count found. I chose to read all 72 records but perhaps I should have ignored the last one.
 * Potentially consolidate the similarities in the `retrieveNbytes` and `bytesToInteger` functions, similar to Ruby's `unpack` function.
-* Convert the UNIX timestamp data into a more usable R time object. 
+* Convert the UNIX timestamp data into a more usable R time object.
 * Create constants for the 4 record types so that the code is easier to read.
-* Consider where fractional pennies make sense, if any. Round appropriatly. 
+* Consider where fractional pennies make sense, if any. Round at the appropriate time.
 * Build tests that demonstrate and validate the functions are working properly.
-* Build in error handling incase the data file or records are malformed.
-* Reduce the use of global variables. Make the functions more atomic. 
-* There might be value in utilizing Docker or Vagrant to wrap this code in a consistent environment. 
-
-
+* Build in error handling in case the data file or records are malformed.
+* Reduce the use of global variables. Make the functions more atomic.
+* There might be value in utilizing Docker or Vagrant to wrap this code in a consistent environment.
