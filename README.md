@@ -1,4 +1,4 @@
-# Proto Challenge for ECMC
+# Proto Challenge
 
 Hello, and thank you for taking the time to look at this code. There is a lot of commentary throughout this repository and I hope you find it helpful in understanding my thought process. Before we jump into it, I'd like to thank [Kay Ehni](https://github.com/ehnik/binary-parser) for her incredibly succinct Ruby example (though I think you got Q5 wrong ... sorry!) and [Rob Simmons](https://bitbucket.org/robsimmons/adhoc_homework/overview) for posting your results - this was exceptionally helpful validation! I'd also like to thank [Ad Hoc](https://github.com/adhocteam/homework/tree/master/proto) for designing and publishing this excellent challenge.
 
@@ -6,22 +6,22 @@ Hello, and thank you for taking the time to look at this code. There is a lot of
 
 Hi! I'm Peter Edstrom. I build teams to solve complex software problems. I see myself as a straightforward and methodical team player. I have about 20 years of software experience ranging from UX to data science to machine learning. As an engineering leader, I work to actively bring about positive change in technical organizations.
 
-I have a [LinkedIn Profile](https://www.linkedin.com/in/peteredstrom/) and you can reach me by email: [peter@edstrom.net](mailto:peter@edstrom.net). 
+I have a [LinkedIn Profile](https://www.linkedin.com/in/peteredstrom/) and you can reach me by email: [peter@edstrom.net](mailto:peter@edstrom.net).
 
 ## Items of Interest
 
 With the preliminaries out of the way, let's start unpacking this challenge. I've organized the code as follows:
 
 * [byte-reader/](byte-reader/) - These are the original challenge files, as presented to me.
-* [02-proto.Rmd](02-proto.Rmd) - The R Markdown Notebook that contains my thought process while coding the solution, as well as the final code. 
+* [02-proto.Rmd](02-proto.Rmd) - The R Markdown Notebook that contains my thought process while coding the solution, as well as the final code.
 * [02-proto.pdf](02-proto.pdf) - This includes the code, as well as the execution results from RStudio. There is also an HTML version, but if you are not viewing this locally [02-proto.nb.html](02-proto.nb.html) may show you the html source instead of a rendered page. I'd recommend downloading the file and open the local copy in your browser of choice.
-* [Commits](https://github.com/pedstrom/ecmc-proto/commits/master) - Not only do you get all of my commentary in the aforementioned notebook, but you get all of my commit messages as well!
+* [Commits](https://github.com/pedstrom/proto/commits/master) - Not only do you get all of my commentary in the aforementioned notebook, but you get all of my commit messages as well!
 
 ## The Choice to use R Project for Statistical Computing
 
 There was no requirement to choose a specific language. Python, Ruby, JavaScript, and Java were called out as possibilities, but I chose to address this challenge using [R Project](https://www.r-project.org).
 
-There are a few reasons for this choice: 
+There are a few reasons for this choice:
 
 * Data science is an active interest of many people right now, and the scientists seem to favor either R or Python languages.
 * I was _not_ able to find a pre-made solution in R through googling.
@@ -52,9 +52,9 @@ I was also aiming to answer a simple question: If the _answers_ are all that mat
 * a potential [JavaScript solution](https://gist.github.com/bradbaris/b8f3b4da14f0c1b3a2816113ba18410c).
 * a potential [Ruby solution](https://github.com/ehnik/binary-parser).
 
-Notice I'm saying "potential". None of these are guaranteed to work, nor are they guaranteed to have correct answers. 
+Notice I'm saying "potential". None of these are guaranteed to work, nor are they guaranteed to have correct answers.
 
-Of the 4 solutions, only the C solution had published the results of their code. I wanted the results of the Ruby solution as well so I downloaded the code [01-sample-proto.rb](01-sample-proto.rb) and ran it locally (`Ruby version 2.3.3p222`). 
+Of the 4 solutions, only the C solution had published the results of their code. I wanted the results of the Ruby solution as well so I downloaded the code [01-sample-proto.rb](01-sample-proto.rb) and ran it locally (`Ruby version 2.3.3p222`).
 The corroboration of the two results against each other follows next.
 
 **C solution** published results:
@@ -75,7 +75,7 @@ Autopays started: 10
 Autopays ended:   8
 ```
 
-**Ruby solution** local-execution results: 
+**Ruby solution** local-execution results:
 
 ```
 {:question_1=>18203.69953340208, :question_2=>10073.359933036814, :question_3=>10, :question_4=>8, :question_5=>248.58493153382494}
@@ -121,7 +121,7 @@ This seems like a good approach and is one I'll be thinking about as I create my
 I had a few tasks to complete before writing any code:
 
 * Update my local installation of [GitHub Desktop](https://desktop.github.com).
-* Set up a [GitHub repository](https://github.com/pedstrom/ecmc-proto) for the project.
+* Set up a [GitHub repository](https://github.com/pedstrom/proto) for the project.
 * Install [RStudio](https://www.rstudio.com), which gave me a run-time error `Unable to locate R binary by scanning standard locations`. I was able to resolve by installing [R 3.4.3](https://cran.r-project.org/bin/macosx/). Whoops!
 
 ## Next Steps
@@ -133,4 +133,3 @@ Thank you for taking the time to review my approach to this challenge!
 Peter Edstrom
 peter@edstrom.net
 January 2018
-

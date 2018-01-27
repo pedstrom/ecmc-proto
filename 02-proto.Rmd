@@ -1,5 +1,5 @@
 ---
-title: "Proto Challenge for ECMC"
+title: "Proto Challenge"
 output:
   html_notebook: default
   html_document:
@@ -7,7 +7,7 @@ output:
   pdf_document: default
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook to address the coding challenge presented by [ECMC](https://www.ecmc.org) to Peter Edstrom on January 5th, 2018.
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook to address the coding challenge presented to Peter Edstrom on January 5th, 2018.
 
 ## Challenge Goals
 
@@ -327,7 +327,7 @@ user_records <- df[df$user_id==2456938384156277127,]
 user_records
 ```
 
-As you can see, there are two records for the user in question. It is pretty easy to tell that the two records will cancel each other out (one is a debit, one is a credit, and both have the same amount). However if this was a larger set of data I'd calculate it something like the following: 
+As you can see, there are two records for the user in question. It is pretty easy to tell that the two records will cancel each other out (one is a debit, one is a credit, and both have the same amount). However if this was a larger set of data I'd calculate it something like the following:
 
 ```{r}
 sum_of_user_credits <- sum(user_records[user_records$type_enum==1,]$amount)
